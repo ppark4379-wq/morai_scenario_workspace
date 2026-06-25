@@ -1,0 +1,14 @@
+GT_BEV/build/
+GT_BEV/devel/
+GT_BEV/.catkin_tools/
+GT_BEV/src/expert/src/config/map/R_KR_PG_KATRI/path.csv
+GT_BEV/src/expert/src/path/path_scenario_runner_current.txt
+GT_BEV/src/expert/src/path/*.backup*
+GT_BEV/src/expert/src/path/*.backup_reload
+
+morai_scenario_runner/third_party/GT_BEV
+morai_scenario_runner/third_party/GT_BEV.broken*/
+
+**/__pycache__/
+*.pyc
+*.log
