@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 
 
@@ -166,6 +166,11 @@ class MoraiGrpcClient:
         ok = result is not None and result.status == STATUS_CODE_SUCCESS
 
         print(f"[Ego] set_vehicle_route: {ok}, links={list(route_links)}")
+        if not ok and result is not None:
+            print(
+                f"[Ego] set_vehicle_route rejected: status={result.status}, "
+                f"description={result.description!r}, custom_message={result.custom_message!r}"
+            )
         return ok
 
     def set_vehicle_route(
@@ -214,6 +219,11 @@ class MoraiGrpcClient:
         ok = result is not None and result.status == STATUS_CODE_SUCCESS
 
         print(f"[{label}] set_vehicle_route: {ok}, links={list(route_links)}")
+        if not ok and result is not None:
+            print(
+                f"[{label}] set_vehicle_route rejected: status={result.status}, "
+                f"description={result.description!r}, custom_message={result.custom_message!r}"
+            )
         return ok
 
     def set_ego_cruise(self, enable=True, link_speed_ratio=40, constant_velocity=20, cruise_type="link"):
@@ -292,6 +302,26 @@ class MoraiGrpcClient:
 
     def stop_ego_control(self):
         return self.control_ego(steer=0.0, target_speed=0.0, brake=1.0, throttle=0.0)
+
+    def reset_ego_motion(self):
+        """Reset ego residual motion before starting a new route/lap."""
+        ok_cruise = self.stop_ego_cruise()
+        ok_control = self.stop_ego_control()
+
+        ok_velocity = False
+        try:
+            ego = self.get_ego()
+            if hasattr(ego, "set_velocity"):
+                ok_velocity = bool(ego.set_velocity(0.0))
+        except Exception as e:
+            print(f"[Ego] reset motion velocity warning: {e}")
+
+        ok = bool(ok_cruise or ok_control or ok_velocity)
+        print(
+            f"[Ego] reset_motion: {ok} "
+            f"(cruise={ok_cruise}, control={ok_control}, velocity={ok_velocity})"
+        )
+        return ok
 
     def set_ego_gear_drive(self):
         from proto.morai.actor.actor_enum_pb2 import GEAR_MODE_D
